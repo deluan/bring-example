@@ -37,17 +37,17 @@ func (ms *mouseState) sendMouse(x, y int) {
 	}
 }
 
-func (ms *mouseState) mouseDown(button desktop.MouseButton, x, y int) {
+func (ms *mouseState) MouseDown(button desktop.MouseButton, x, y int) {
 	ms.buttons[button] = true
 	ms.sendMouse(x, y)
 }
 
-func (ms *mouseState) mouseUp(button desktop.MouseButton, x, y int) {
+func (ms *mouseState) MouseUp(button desktop.MouseButton, x, y int) {
 	ms.buttons[button] = false
 	ms.sendMouse(x, y)
 }
 
-func (ms *mouseState) mouseMove(x, y int) {
+func (ms *mouseState) MouseMove(x, y int) {
 	if ms.x == x && ms.y == y {
 		return
 	}

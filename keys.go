@@ -22,8 +22,18 @@ func (ks *keyboardState) sendKey(key bring.KeyCode, pressed bool) {
 	_ = ks.client.SendKey(bring.KeyCode(k), pressed)
 }
 
-func (ks *keyboardState) keyUp(scancode fyne.KeyName) {
-	if k := mapKey(scancode); k >= 0 {
+func mapKey(keyName fyne.KeyName) bring.KeyCode {
+	if !specialKeys[keyName] {
+		return -1
+	}
+	if k, ok := keyMap[keyName]; ok {
+		return k
+	}
+	return -1
+}
+
+func (ks *keyboardState) KeyUp(keyName fyne.KeyName) {
+	if k := mapKey(keyName); k >= 0 {
 		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
 			ks.shift = false
 		}
@@ -34,8 +44,8 @@ func (ks *keyboardState) keyUp(scancode fyne.KeyName) {
 	}
 }
 
-func (ks *keyboardState) keyDown(scancode fyne.KeyName) {
-	if k := mapKey(scancode); k >= 0 {
+func (ks *keyboardState) KeyDown(keyName fyne.KeyName) {
+	if k := mapKey(keyName); k >= 0 {
 		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
 			ks.shift = true
 		}
@@ -46,14 +56,18 @@ func (ks *keyboardState) keyDown(scancode fyne.KeyName) {
 	}
 }
 
-func mapKey(scancode fyne.KeyName) bring.KeyCode {
-	if len(scancode) == 1 && scancode[0] < 128 {
-		return bring.KeyCode(scancode[0])
+func (ks *keyboardState) TypedKey(keyName fyne.KeyName) {
+	if specialKeys[keyName] {
+		return
 	}
-	if k, ok := keyMap[scancode]; ok {
-		return k
+	k, ok := keyMap[keyName]
+	if !ok && len(keyName) == 1 && keyName[0] < 128 {
+		k = bring.KeyCode(keyName[0])
 	}
-	return -1
+	if k > 0 {
+		ks.sendKey(k, true)
+		ks.sendKey(k, false)
+	}
 }
 
 var (

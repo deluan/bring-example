@@ -110,14 +110,15 @@ func (b *BringRemote) TypedRune(ch rune) {
 }
 
 func (b *BringRemote) TypedKey(ev *fyne.KeyEvent) {
+	b.keyboardState.TypedKey(ev.Name)
 }
 
 func (b *BringRemote) KeyDown(ev *fyne.KeyEvent) {
-	b.keyboardState.keyDown(ev.Name)
+	b.keyboardState.KeyDown(ev.Name)
 }
 
 func (b *BringRemote) KeyUp(ev *fyne.KeyEvent) {
-	b.keyboardState.keyUp(ev.Name)
+	b.keyboardState.KeyUp(ev.Name)
 }
 
 func (b *BringRemote) updateDisplay() {
@@ -134,17 +135,17 @@ func (b *BringRemote) SetDisplay(img image.Image) {
 }
 
 func (b *BringRemote) MouseDown(ev *desktop.MouseEvent) {
-	b.mouseState.mouseDown(ev.Button, ev.Position.X, ev.Position.Y)
+	b.mouseState.MouseDown(ev.Button, ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
 func (b *BringRemote) MouseUp(ev *desktop.MouseEvent) {
-	b.mouseState.mouseUp(ev.Button, ev.Position.X, ev.Position.Y)
+	b.mouseState.MouseUp(ev.Button, ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
 func (b *BringRemote) MouseMoved(ev *desktop.MouseEvent) {
-	b.mouseState.mouseMove(ev.Position.X, ev.Position.Y)
+	b.mouseState.MouseMove(ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
