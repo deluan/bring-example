@@ -7,13 +7,47 @@ import (
 )
 
 type keyboardHandler struct {
-	client *bring.Client
-	shift  bool
-	caps   bool
+	display *BringDisplay
+	shift   bool
+	caps    bool
 }
 
-func newKeyboardHandler(client *bring.Client) *keyboardHandler {
-	return &keyboardHandler{client: client}
+func (ks *keyboardHandler) TypedKey(ev *fyne.KeyEvent) {
+	keyName := ev.Name
+	k, ok := keyMap[keyName]
+	if !ok && len(keyName) == 1 && keyName[0] < 128 {
+		k = bring.KeyCode(keyName[0])
+	}
+	if k > 0 {
+		ks.sendKey(k, true)
+		ks.sendKey(k, false)
+	}
+}
+
+func (ks *keyboardHandler) KeyDown(ev *fyne.KeyEvent) {
+	if k, ok := desktopKeyMap[ev.Name]; ok {
+		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
+			ks.shift = true
+		}
+		if k == bring.KeyCapsLock {
+			ks.caps = true
+		}
+		ks.sendKey(k, true)
+	}
+
+}
+
+func (ks *keyboardHandler) KeyUp(ev *fyne.KeyEvent) {
+	if k, ok := desktopKeyMap[ev.Name]; ok {
+		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
+			ks.shift = false
+		}
+		if k == bring.KeyCapsLock {
+			ks.caps = false
+		}
+		ks.sendKey(k, false)
+	}
+
 }
 
 func (ks *keyboardHandler) sendKey(key bring.KeyCode, pressed bool) {
@@ -23,42 +57,20 @@ func (ks *keyboardHandler) sendKey(key bring.KeyCode, pressed bool) {
 			k = k + 32
 		}
 	}
-	_ = ks.client.SendKey(bring.KeyCode(k), pressed)
+	_ = ks.display.Client.SendKey(bring.KeyCode(k), pressed)
 }
 
-func (ks *keyboardHandler) KeyUp(keyName fyne.KeyName) {
-	if k, ok := desktopKeyMap[keyName]; ok {
-		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
-			ks.shift = false
-		}
-		if k == bring.KeyCapsLock {
-			ks.caps = false
-		}
-		ks.sendKey(k, false)
-	}
+func (ks *keyboardHandler) Focused() bool {
+	return true
 }
 
-func (ks *keyboardHandler) KeyDown(keyName fyne.KeyName) {
-	if k, ok := desktopKeyMap[keyName]; ok {
-		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
-			ks.shift = true
-		}
-		if k == bring.KeyCapsLock {
-			ks.caps = true
-		}
-		ks.sendKey(k, true)
-	}
+func (ks *keyboardHandler) FocusGained() {
 }
 
-func (ks *keyboardHandler) TypedKey(keyName fyne.KeyName) {
-	k, ok := keyMap[keyName]
-	if !ok && len(keyName) == 1 && keyName[0] < 128 {
-		k = bring.KeyCode(keyName[0])
-	}
-	if k > 0 {
-		ks.sendKey(k, true)
-		ks.sendKey(k, false)
-	}
+func (ks *keyboardHandler) FocusLost() {
+}
+
+func (ks *keyboardHandler) TypedRune(ch rune) {
 }
 
 var (
@@ -115,3 +127,6 @@ func init() {
 		//:          bring.KeyWin,
 	}
 }
+
+// Make sure all necessary interfaces are implemented
+var _ desktop.Keyable = (*keyboardHandler)(nil)
