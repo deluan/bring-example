@@ -1,0 +1,32 @@
+# This file is used for local testing. It spins up a guacd server
+# and a linux with a VNC server.
+
+version: '3'
+services:
+  guacd:
+    image: glyptodon/guacd:latest
+    environment:
+      ACCEPT_EULA: Y
+    networks:
+      bring_network:
+        ipv4_address: 10.1.0.10
+    ports:
+      - "4822:4822"
+  xvnc:
+    image: consol/ubuntu-xfce-vnc:1.4.0
+    environment:
+      VNC_RESOLUTION: "1024x768"
+      VNC_PW: "vncpassword"
+    networks:
+      bring_network:
+        ipv4_address: 10.1.0.11
+    ports:
+      - "5901:5901"
+      - "6901:6901"
+networks:
+  bring_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.0.0/24
