@@ -6,6 +6,7 @@ import (
 	"github.com/deluan/bring"
 )
 
+// Handles keyboard events mapping between Bring and Fyne
 type keyboardHandler struct {
 	display *BringDisplay
 	shift   bool
@@ -25,29 +26,23 @@ func (ks *keyboardHandler) TypedKey(ev *fyne.KeyEvent) {
 }
 
 func (ks *keyboardHandler) KeyDown(ev *fyne.KeyEvent) {
-	if k, ok := desktopKeyMap[ev.Name]; ok {
-		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
-			ks.shift = true
-		}
-		if k == bring.KeyCapsLock {
-			ks.caps = true
-		}
-		ks.sendKey(k, true)
-	}
-
+	ks.handleDesktopKey(ev.Name, true)
 }
 
 func (ks *keyboardHandler) KeyUp(ev *fyne.KeyEvent) {
-	if k, ok := desktopKeyMap[ev.Name]; ok {
-		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
-			ks.shift = false
-		}
-		if k == bring.KeyCapsLock {
-			ks.caps = false
-		}
-		ks.sendKey(k, false)
-	}
+	ks.handleDesktopKey(ev.Name, false)
+}
 
+func (ks *keyboardHandler) handleDesktopKey(keyName fyne.KeyName, pressed bool) {
+	if keyCode, ok := desktopKeyMap[keyName]; ok {
+		if keyCode == bring.KeyLeftShift || keyCode == bring.KeyRightShift {
+			ks.shift = pressed
+		}
+		if keyCode == bring.KeyCapsLock {
+			ks.caps = pressed
+		}
+		ks.sendKey(keyCode, pressed)
+	}
 }
 
 func (ks *keyboardHandler) sendKey(key bring.KeyCode, pressed bool) {

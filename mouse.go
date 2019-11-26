@@ -13,6 +13,7 @@ var mouseBtnMap = map[desktop.MouseButton]bring.MouseButton{
 	desktop.RightMouseButton: bring.MouseRight,
 }
 
+// Handles mouse events mapping between Bring and Fyne
 type mouseHandler struct {
 	display *BringDisplay
 	buttons map[desktop.MouseButton]bool

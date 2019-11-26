@@ -50,6 +50,7 @@ func (r *bringDisplayRenderer) Refresh() {
 func (r *bringDisplayRenderer) Destroy() {
 }
 
+// Custom Widget that represents the remote computer being controlled
 type BringDisplay struct {
 	widget.BaseWidget
 	keyboardHandler
@@ -61,6 +62,7 @@ type BringDisplay struct {
 	Client  *bring.Client
 }
 
+// Creates a new BringDisplay and does all the heavy lifting, setting up all event handlers
 func NewBringDisplay(client *bring.Client, width, height int) *BringDisplay {
 	empty := image.NewNRGBA(image.Rect(0, 0, width-1, height-1))
 
