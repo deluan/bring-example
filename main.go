@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/widget"
@@ -37,15 +40,18 @@ func createBringClient(protocol, hostname, port string) *bring.Client {
 
 func main() {
 	if len(os.Args) < 4 {
-		println("Usage: app <vnc|rdp> address port")
-		return
+		cmd := filepath.Base(os.Args[0])
+		fmt.Printf("Usage: %s <vnc|rdp> address port", cmd)
+		os.Exit(1)
 	}
 	client := createBringClient(os.Args[1], os.Args[2], os.Args[3])
 
 	bringApp := app.New()
-	bringDisplay := NewBringDisplay(client, defaultWidth, defaultHeight)
+	title := fmt.Sprintf("%s (%s:%s)", strings.ToUpper(os.Args[1]), os.Args[2], os.Args[3])
+	w := bringApp.NewWindow(title)
 
-	w := bringApp.NewWindow("Bring it Fyne")
+	bringDisplay := NewBringDisplay(client, defaultWidth, defaultHeight)
+	w.CenterOnScreen()
 	w.SetContent(widget.NewVBox(
 		widget.NewHBox(
 			widget.NewButton("Quit", func() {
