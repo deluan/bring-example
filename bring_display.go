@@ -99,6 +99,8 @@ func (b *BringDisplay) CreateRenderer() fyne.WidgetRenderer {
 	}
 }
 
+// This forces a display refresh if there are any pending updates, instead of waiting for the next
+// OnSync event. Ex: when moving the mouse we want instant feedback of the new cursor position
 func (b *BringDisplay) updateDisplay() {
 	img, ts := b.Client.Screen()
 	if ts != b.lastUpdate {
