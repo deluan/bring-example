@@ -11,16 +11,16 @@ import (
 	"github.com/deluan/bring"
 )
 
-type bringRemoteRenderer struct {
+type bringDisplayRenderer struct {
 	objects []fyne.CanvasObject
-	remote  *BringRemote
+	remote  *BringDisplay
 }
 
-func (r *bringRemoteRenderer) MinSize() fyne.Size {
+func (r *bringDisplayRenderer) MinSize() fyne.Size {
 	return r.remote.MinSize()
 }
 
-func (r *bringRemoteRenderer) Layout(size fyne.Size) {
+func (r *bringDisplayRenderer) Layout(size fyne.Size) {
 	if len(r.objects) == 0 {
 		return
 	}
@@ -28,15 +28,15 @@ func (r *bringRemoteRenderer) Layout(size fyne.Size) {
 	r.objects[0].Resize(size)
 }
 
-func (r *bringRemoteRenderer) Objects() []fyne.CanvasObject {
+func (r *bringDisplayRenderer) Objects() []fyne.CanvasObject {
 	return r.objects
 }
 
-func (r *bringRemoteRenderer) BackgroundColor() color.Color {
+func (r *bringDisplayRenderer) BackgroundColor() color.Color {
 	return color.Transparent
 }
 
-func (r *bringRemoteRenderer) Refresh() {
+func (r *bringDisplayRenderer) Refresh() {
 	if len(r.objects) == 0 {
 		raster := canvas.NewImageFromImage(r.remote.Display)
 		raster.FillMode = canvas.ImageFillContain
@@ -48,10 +48,10 @@ func (r *bringRemoteRenderer) Refresh() {
 	canvas.Refresh(r.remote)
 }
 
-func (r *bringRemoteRenderer) Destroy() {
+func (r *bringDisplayRenderer) Destroy() {
 }
 
-type BringRemote struct {
+type BringDisplay struct {
 	widget.BaseWidget
 	lastUpdate      int64
 	mouseHandler    *mouseHandler
@@ -61,13 +61,13 @@ type BringRemote struct {
 	Client  *bring.Client
 }
 
-func NewBringRemote(client *bring.Client, width, height int) *BringRemote {
+func NewBringDisplay(client *bring.Client, width, height int) *BringDisplay {
 	empty := image.NewNRGBA(image.Rect(0, 0, width-1, height-1))
 
-	b := &BringRemote{
+	b := &BringDisplay{
 		Client:          client,
-		mouseHandler:    &mouseHandler{client: client, buttons: make(map[desktop.MouseButton]bool)},
-		keyboardHandler: &keyboardHandler{client: client},
+		mouseHandler:    newMouseHandler(client),
+		keyboardHandler: newKeyboardHandler(client),
 	}
 	b.SetDisplay(empty)
 	b.Client.OnSync(func(img image.Image, ts int64) {
@@ -81,7 +81,7 @@ func NewBringRemote(client *bring.Client, width, height int) *BringRemote {
 	return b
 }
 
-func (b *BringRemote) MinSize() fyne.Size {
+func (b *BringDisplay) MinSize() fyne.Size {
 	b.ExtendBaseWidget(b)
 	return fyne.Size{
 		Width:  b.Display.Bounds().Dx(),
@@ -89,39 +89,39 @@ func (b *BringRemote) MinSize() fyne.Size {
 	}
 }
 
-func (b *BringRemote) CreateRenderer() fyne.WidgetRenderer {
-	return &bringRemoteRenderer{
+func (b *BringDisplay) CreateRenderer() fyne.WidgetRenderer {
+	return &bringDisplayRenderer{
 		objects: []fyne.CanvasObject{},
 		remote:  b,
 	}
 }
 
-func (b *BringRemote) FocusGained() {
+func (b *BringDisplay) FocusGained() {
 }
 
-func (b *BringRemote) FocusLost() {
+func (b *BringDisplay) FocusLost() {
 }
 
-func (b *BringRemote) Focused() bool {
+func (b *BringDisplay) Focused() bool {
 	return true
 }
 
-func (b *BringRemote) TypedRune(ch rune) {
+func (b *BringDisplay) TypedRune(ch rune) {
 }
 
-func (b *BringRemote) TypedKey(ev *fyne.KeyEvent) {
+func (b *BringDisplay) TypedKey(ev *fyne.KeyEvent) {
 	b.keyboardHandler.TypedKey(ev.Name)
 }
 
-func (b *BringRemote) KeyDown(ev *fyne.KeyEvent) {
+func (b *BringDisplay) KeyDown(ev *fyne.KeyEvent) {
 	b.keyboardHandler.KeyDown(ev.Name)
 }
 
-func (b *BringRemote) KeyUp(ev *fyne.KeyEvent) {
+func (b *BringDisplay) KeyUp(ev *fyne.KeyEvent) {
 	b.keyboardHandler.KeyUp(ev.Name)
 }
 
-func (b *BringRemote) updateDisplay() {
+func (b *BringDisplay) updateDisplay() {
 	img, ts := b.Client.Screen()
 	if ts != b.lastUpdate {
 		b.SetDisplay(img)
@@ -129,33 +129,33 @@ func (b *BringRemote) updateDisplay() {
 	}
 }
 
-func (b *BringRemote) SetDisplay(img image.Image) {
+func (b *BringDisplay) SetDisplay(img image.Image) {
 	b.Display = img
 	b.Refresh()
 }
 
-func (b *BringRemote) MouseDown(ev *desktop.MouseEvent) {
+func (b *BringDisplay) MouseDown(ev *desktop.MouseEvent) {
 	b.mouseHandler.MouseDown(ev.Button, ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
-func (b *BringRemote) MouseUp(ev *desktop.MouseEvent) {
+func (b *BringDisplay) MouseUp(ev *desktop.MouseEvent) {
 	b.mouseHandler.MouseUp(ev.Button, ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
-func (b *BringRemote) MouseMoved(ev *desktop.MouseEvent) {
+func (b *BringDisplay) MouseMoved(ev *desktop.MouseEvent) {
 	b.mouseHandler.MouseMove(ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
-func (b *BringRemote) MouseIn(*desktop.MouseEvent) {
+func (b *BringDisplay) MouseIn(*desktop.MouseEvent) {
 }
 
-func (b *BringRemote) MouseOut() {
+func (b *BringDisplay) MouseOut() {
 }
 
 // Make sure all necessary interfaces are implemented
-var _ desktop.Hoverable = (*BringRemote)(nil)
-var _ desktop.Mouseable = (*BringRemote)(nil)
-var _ desktop.Keyable = (*BringRemote)(nil)
+var _ desktop.Hoverable = (*BringDisplay)(nil)
+var _ desktop.Mouseable = (*BringDisplay)(nil)
+var _ desktop.Keyable = (*BringDisplay)(nil)

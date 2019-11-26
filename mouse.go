@@ -19,6 +19,10 @@ type mouseHandler struct {
 	x, y    int
 }
 
+func newMouseHandler(client *bring.Client) *mouseHandler {
+	return &mouseHandler{client: client, buttons: make(map[desktop.MouseButton]bool)}
+}
+
 func (ms *mouseHandler) pressedButtons() []bring.MouseButton {
 	var buttons []bring.MouseButton
 	for b, pressed := range ms.buttons {

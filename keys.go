@@ -12,6 +12,10 @@ type keyboardHandler struct {
 	caps   bool
 }
 
+func newKeyboardHandler(client *bring.Client) *keyboardHandler {
+	return &keyboardHandler{client: client}
+}
+
 func (ks *keyboardHandler) sendKey(key bring.KeyCode, pressed bool) {
 	k := int(key)
 	if k >= int('A') && k <= int('Z') {
@@ -83,6 +87,7 @@ func init() {
 	}
 
 	keyMap = map[fyne.KeyName]bring.KeyCode{
+		fyne.KeySpace:     bring.KeyCode(32),
 		fyne.KeyBackspace: bring.KeyBackspace,
 		fyne.KeyDelete:    bring.KeyDelete,
 		fyne.KeyDown:      bring.KeyDown,
