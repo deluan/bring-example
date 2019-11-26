@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strconv"
 
 	"fyne.io/fyne/app"
@@ -35,8 +36,13 @@ func createBringClient(protocol, hostname, port string) *bring.Client {
 }
 
 func main() {
+	if len(os.Args) < 4 {
+		println("Usage: app <vnc|rdp> address port")
+		return
+	}
+	client := createBringClient(os.Args[1], os.Args[2], os.Args[3])
+
 	bringApp := app.New()
-	client := createBringClient("vnc", "10.1.0.11", "5901")
 	bringDisplay := NewBringDisplay(client, defaultWidth, defaultHeight)
 
 	w := bringApp.NewWindow("Bring it Fyne")
