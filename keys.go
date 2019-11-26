@@ -26,15 +26,8 @@ func (ks *keyboardHandler) sendKey(key bring.KeyCode, pressed bool) {
 	_ = ks.client.SendKey(bring.KeyCode(k), pressed)
 }
 
-func mapDesktopKey(keyName fyne.KeyName) bring.KeyCode {
-	if k, ok := desktopKeyMap[keyName]; ok {
-		return k
-	}
-	return -1
-}
-
 func (ks *keyboardHandler) KeyUp(keyName fyne.KeyName) {
-	if k := mapDesktopKey(keyName); k >= 0 {
+	if k, ok := desktopKeyMap[keyName]; ok {
 		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
 			ks.shift = false
 		}
@@ -46,7 +39,7 @@ func (ks *keyboardHandler) KeyUp(keyName fyne.KeyName) {
 }
 
 func (ks *keyboardHandler) KeyDown(keyName fyne.KeyName) {
-	if k := mapDesktopKey(keyName); k >= 0 {
+	if k, ok := desktopKeyMap[keyName]; ok {
 		if k == bring.KeyLeftShift || k == bring.KeyRightShift {
 			ks.shift = true
 		}
