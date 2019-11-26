@@ -13,13 +13,13 @@ var mouseBtnMap = map[desktop.MouseButton]bring.MouseButton{
 	desktop.RightMouseButton: bring.MouseRight,
 }
 
-type mouseState struct {
+type mouseHandler struct {
 	client  *bring.Client
 	buttons map[desktop.MouseButton]bool
 	x, y    int
 }
 
-func (ms *mouseState) pressedButtons() []bring.MouseButton {
+func (ms *mouseHandler) pressedButtons() []bring.MouseButton {
 	var buttons []bring.MouseButton
 	for b, pressed := range ms.buttons {
 		bb := mouseBtnMap[b]
@@ -30,24 +30,24 @@ func (ms *mouseState) pressedButtons() []bring.MouseButton {
 	return buttons
 }
 
-func (ms *mouseState) sendMouse(x, y int) {
+func (ms *mouseHandler) sendMouse(x, y int) {
 	ms.x, ms.y = x, y
 	if err := ms.client.SendMouse(image.Pt(x, y), ms.pressedButtons()...); err != nil {
 		fmt.Printf("Error: %s\n", err)
 	}
 }
 
-func (ms *mouseState) MouseDown(button desktop.MouseButton, x, y int) {
+func (ms *mouseHandler) MouseDown(button desktop.MouseButton, x, y int) {
 	ms.buttons[button] = true
 	ms.sendMouse(x, y)
 }
 
-func (ms *mouseState) MouseUp(button desktop.MouseButton, x, y int) {
+func (ms *mouseHandler) MouseUp(button desktop.MouseButton, x, y int) {
 	ms.buttons[button] = false
 	ms.sendMouse(x, y)
 }
 
-func (ms *mouseState) MouseMove(x, y int) {
+func (ms *mouseHandler) MouseMove(x, y int) {
 	if ms.x == x && ms.y == y {
 		return
 	}

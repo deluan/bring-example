@@ -53,9 +53,9 @@ func (r *bringRemoteRenderer) Destroy() {
 
 type BringRemote struct {
 	widget.BaseWidget
-	lastUpdate    int64
-	mouseState    *mouseState
-	keyboardState *keyboardState
+	lastUpdate      int64
+	mouseHandler    *mouseHandler
+	keyboardHandler *keyboardHandler
 
 	Display image.Image
 	Client  *bring.Client
@@ -65,9 +65,9 @@ func NewBringRemote(client *bring.Client, width, height int) *BringRemote {
 	empty := image.NewNRGBA(image.Rect(0, 0, width-1, height-1))
 
 	b := &BringRemote{
-		Client:        client,
-		mouseState:    &mouseState{client: client, buttons: make(map[desktop.MouseButton]bool)},
-		keyboardState: &keyboardState{client: client},
+		Client:          client,
+		mouseHandler:    &mouseHandler{client: client, buttons: make(map[desktop.MouseButton]bool)},
+		keyboardHandler: &keyboardHandler{client: client},
 	}
 	b.SetDisplay(empty)
 	b.Client.OnSync(func(img image.Image, ts int64) {
@@ -110,15 +110,15 @@ func (b *BringRemote) TypedRune(ch rune) {
 }
 
 func (b *BringRemote) TypedKey(ev *fyne.KeyEvent) {
-	b.keyboardState.TypedKey(ev.Name)
+	b.keyboardHandler.TypedKey(ev.Name)
 }
 
 func (b *BringRemote) KeyDown(ev *fyne.KeyEvent) {
-	b.keyboardState.KeyDown(ev.Name)
+	b.keyboardHandler.KeyDown(ev.Name)
 }
 
 func (b *BringRemote) KeyUp(ev *fyne.KeyEvent) {
-	b.keyboardState.KeyUp(ev.Name)
+	b.keyboardHandler.KeyUp(ev.Name)
 }
 
 func (b *BringRemote) updateDisplay() {
@@ -135,17 +135,17 @@ func (b *BringRemote) SetDisplay(img image.Image) {
 }
 
 func (b *BringRemote) MouseDown(ev *desktop.MouseEvent) {
-	b.mouseState.MouseDown(ev.Button, ev.Position.X, ev.Position.Y)
+	b.mouseHandler.MouseDown(ev.Button, ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
 func (b *BringRemote) MouseUp(ev *desktop.MouseEvent) {
-	b.mouseState.MouseUp(ev.Button, ev.Position.X, ev.Position.Y)
+	b.mouseHandler.MouseUp(ev.Button, ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
 func (b *BringRemote) MouseMoved(ev *desktop.MouseEvent) {
-	b.mouseState.MouseMove(ev.Position.X, ev.Position.Y)
+	b.mouseHandler.MouseMove(ev.Position.X, ev.Position.Y)
 	b.updateDisplay()
 }
 
