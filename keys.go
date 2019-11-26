@@ -46,13 +46,12 @@ func (ks *keyboardHandler) handleDesktopKey(keyName fyne.KeyName, pressed bool) 
 }
 
 func (ks *keyboardHandler) sendKey(key bring.KeyCode, pressed bool) {
-	k := int(key)
-	if k >= int('A') && k <= int('Z') {
+	if key >= 'A' && key <= 'Z' {
 		if !ks.shift && !ks.caps {
-			k = k + 32
+			key = key + 32
 		}
 	}
-	_ = ks.display.Client.SendKey(bring.KeyCode(k), pressed)
+	_ = ks.display.Client.SendKey(key, pressed)
 }
 
 func (ks *keyboardHandler) Focused() bool {
