@@ -35,15 +35,15 @@ func createBringClient(protocol, hostname, port string) *bring.Client {
 }
 
 func main() {
-	app := app.New()
+	bringApp := app.New()
 	client := createBringClient("vnc", "10.1.0.11", "5901")
 	bringRemote := NewBringRemote(client, defaultWidth, defaultHeight)
 
-	w := app.NewWindow("Bring it Fyne")
+	w := bringApp.NewWindow("Bring it Fyne")
 	w.SetContent(widget.NewVBox(
 		widget.NewHBox(
 			widget.NewButton("Quit", func() {
-				app.Quit()
+				bringApp.Quit()
 			}),
 		),
 		bringRemote,
