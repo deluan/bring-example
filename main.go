@@ -1,12 +1,9 @@
 package main
 
 import (
-	"image"
 	"strconv"
 
-	"fyne.io/fyne"
 	"fyne.io/fyne/app"
-	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/widget"
 	"github.com/deluan/bring"
 	"github.com/sirupsen/logrus"
@@ -39,7 +36,8 @@ func createBringClient(protocol, hostname, port string) *bring.Client {
 
 func main() {
 	app := app.New()
-	remote := NewBringRemote(defaultWidth, defaultHeight)
+	client := createBringClient("vnc", "10.0.0.11", "5901")
+	bringRemote := NewBringRemote(client, defaultWidth, defaultHeight)
 
 	w := app.NewWindow("Bring it Fyne")
 	w.SetContent(widget.NewVBox(
@@ -48,30 +46,8 @@ func main() {
 				app.Quit()
 			}),
 		),
-		remote,
+		bringRemote,
 	))
-	client := createBringClient("vnc", "10.0.0.11", "5901")
-
-	w.Canvas().SetOnTypedRune(func(ch rune) {
-		_ = client.SendText(string(ch))
-	})
-	w.Canvas().SetOnTypedKey(func(ev *fyne.KeyEvent) {
-		if k, ok := keys[ev.Name]; ok && !specialKeys[ev.Name] {
-			_ = client.SendKey(k, true)
-			_ = client.SendKey(k, false)
-		}
-	})
-
-	var lastUpdate int64
-	client.OnSync(func(img image.Image, ts int64) {
-		if ts == lastUpdate {
-			return
-		}
-		lastUpdate = ts
-		remote.SetImage(img)
-		canvas.Refresh(remote)
-	})
-	go client.Start()
 
 	w.ShowAndRun()
 }
