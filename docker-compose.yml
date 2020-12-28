@@ -1,10 +1,10 @@
 # This file is used for local testing. It spins up a guacd server
-# and a linux with a VNC server.
+# and one linux with a VNC server and another with RDP.
 
 version: '3'
 services:
   guacd:
-    image: glyptodon/guacd:latest
+    image: ghcr.io/linuxserver/guacd
     environment:
       ACCEPT_EULA: Y
     networks:
@@ -12,7 +12,7 @@ services:
         ipv4_address: 10.1.0.10
     ports:
       - "4822:4822"
-  xvnc:
+  vnc:
     image: consol/ubuntu-xfce-vnc:1.4.0
     environment:
       VNC_RESOLUTION: "1024x768"
@@ -23,6 +23,15 @@ services:
     ports:
       - "5901:5901"
       - "6901:6901"
+  rdp:
+    image: umis/xubuntu-office-xrdp-desktop:v1.0
+    container_name: rdp
+    environment:
+      - "USERNAME:root"
+      - "PASSWORD:Docker"
+    networks:
+      bring_network:
+        ipv4_address: 10.1.0.12
 networks:
   bring_network:
     driver: bridge

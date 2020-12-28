@@ -7,9 +7,9 @@ Here are the steps to run the app:
 
 1) You'll need a working `guacd` server in your machine. The easiest way is using docker 
 and docker-compose. Just call `docker-compose up -d` in the root of this project. It 
-starts the `guacd` server and a sample headless linux with a VNC server
+starts the `guacd` server and two sample headless linux: one with a VNC server and another with RDP
 
-2) Run the sample app with `make run`. It will connect to the linux container started by docker.
+2) Run the sample app with `make rdp` or `make vnc`. It will connect to the appropriate linux container started by docker.
 
 
 ## TODO

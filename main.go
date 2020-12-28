@@ -20,7 +20,7 @@ const (
 )
 
 // Creates and initialize Bring's Session and Client
-func createBringClient(protocol, hostname, port string) *bring.Client {
+func createBringClient(protocol, hostname, port, username, password string) *bring.Client {
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{DisableTimestamp: true, ForceColors: true})
 	logger.SetLevel(logrus.DebugLevel)
@@ -28,7 +28,8 @@ func createBringClient(protocol, hostname, port string) *bring.Client {
 	client, err := bring.NewClient(guacdAddress, protocol, map[string]string{
 		"hostname": hostname,
 		"port":     port,
-		"password": "vncpassword",
+		"username": username,
+		"password": password,
 		"width":    strconv.Itoa(defaultWidth),
 		"height":   strconv.Itoa(defaultHeight),
 	}, logger)
@@ -44,7 +45,7 @@ func main() {
 		fmt.Printf("Usage: %s <vnc|rdp> address port", cmd)
 		os.Exit(1)
 	}
-	client := createBringClient(os.Args[1], os.Args[2], os.Args[3])
+	client := createBringClient(os.Args[1], os.Args[2], os.Args[3], os.Args[4], os.Args[5])
 
 	bringApp := app.New()
 	title := fmt.Sprintf("%s (%s:%s)", strings.ToUpper(os.Args[1]), os.Args[2], os.Args[3])
